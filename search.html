@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Address Book</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="topnav">
+    <a href="index.html">Add New Records</a>
+    <a href="list.html">List of Records</a>
+    <a class="active" href="search.html">Search Page</a>
+</div>
+
+    <div class="container" id="main_container">
+        <h1>Search</h1>
+        <input id="search_input" placeholder="Search for name or phone number" name="search">
+        <button id="search_button" onclick="search()">SEARCH</button>
+        <div id="error_page">
+            <p></p>
+        </div>
+        <div id="head_grid" class="im-not-visible">
+            <h2>Results:</h2>
+            <div class="grid-container">
+                <span>#</span>
+                <div class="head-title">
+                    <span>Name</span>
+                </div>
+                <div class="head-title">
+                    <span>Phone Number</span>
+                </div>
+            </div>
+        </div>
+        <div id="blank_container" class="grid-container im-not-visible">
+            <span class="index"></span>
+            <div class="input-container">
+                <span class="record-name"></span>
+            </div>
+            <div class="input-container">
+                <span class="record-phone"></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let arrayOfNames = [];
+        if (localStorage.getItem("names")){
+            arrayOfNames = JSON.parse(localStorage.getItem("names"));
+        }
+
+        let arrayOfPhones = [];
+        if (localStorage.getItem("phones")){
+            arrayOfPhones = JSON.parse(localStorage.getItem("phones"));
+        }
+
+        const errorPage = document.getElementById("error_page");
+        const target = document.getElementById("main_container");
+        const node = document.getElementById("blank_container");
+        const headGrid = document.getElementById("head_grid");
+
+        (function() {
+            if(arrayOfNames.length !== arrayOfPhones.length){
+                errorPage.children[0].textContent = "There is something wrong with the list of records";
+                errorPage.classList.add("im-visible");
+                document.getElementById("search_input").remove();
+                document.getElementById("button_input").remove();
+                return false;
+            }
+            if(arrayOfNames.length === 0){
+                errorPage.children[0].textContent = "There are no records created";
+                errorPage.classList.add("im-visible");
+                document.getElementById("search_input").remove();
+                document.getElementById("button_input").remove();
+            }
+        }());
+
+        const search = async() => {
+
+            const resetSearchPage = () => {
+                errorPage.classList.remove("im-visible");
+                document.getElementById("results_container").remove();
+            }
+
+            const settingNoResults = () => {
+                headGrid.classList.add("im-not-visible");
+                errorPage.children[0].textContent = "There are no records that match that search query";
+                errorPage.classList.add("im-visible");
+            }
+
+            const settingResults = (name, phone) => {
+                counter ++;
+                const newNode = node.cloneNode(true);
+                headGrid.classList.remove("im-not-visible");
+                newNode.classList.remove("im-not-visible");
+                newNode.classList.add("filtered-record");
+                newNode.removeAttribute('id');
+                newNode.getElementsByClassName("index")[0].textContent = `${(counter)}. `;
+                newNode.getElementsByClassName("record-name")[0].textContent = name;
+                newNode.getElementsByClassName("record-phone")[0].textContent = phone;
+                resultsContainer.appendChild(newNode);
+                target.appendChild(resultsContainer);
+            }
+
+            if (document.getElementById("results_container")){
+                resetSearchPage();
+            }
+            
+            const searchValue = document.getElementById("search_input").value;
+            const regName = /^[A-Za-z\s]*$/;
+            const regPhone = /^(\+(?!01)|0)(?:[^()]*|[^()]*\([^()]*\)[^()]*)[0-9]{6,}$/;
+            const resultsContainer = document.createElement("div");
+            resultsContainer.setAttribute("id", "results_container");
+
+            let counter = 0;
+
+            if (searchValue !== "" && regName.test(searchValue)){
+                arrayOfNames.map((name,x) => {
+                    let phone = arrayOfPhones[x];
+                    if (name.toLowerCase().indexOf(searchValue.toLowerCase()) !== -1){
+                        settingResults(name, phone);
+                    }
+                });
+                if (counter === 0){
+                    settingNoResults();
+                }
+            }else if(searchValue !== "" && regPhone.test(searchValue)){
+                arrayOfNames.map((name,x) => {
+                    let phone = arrayOfPhones[x];
+                    if (phone === searchValue){
+                        settingResults(name, phone);
+                    }
+                });
+                if (counter === 0){
+                    settingNoResults();
+                }
+            }else{
+                settingNoResults();
+            }
+        }
+    </script>
+</body>
+</html>
