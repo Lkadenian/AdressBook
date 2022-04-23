@@ -33,15 +33,13 @@
     <script>
         const NUMBEROFINPUTS = 50;
 
-        (function() {
-            const target = document.getElementById("grids");
-            const node = document.getElementsByClassName("grid-container")[0];
-            for (let x = 1; x < NUMBEROFINPUTS; x++){
-                const newNode = node.cloneNode(true);
-                newNode.getElementsByClassName("index")[0].textContent = `${(x+1)}. `;
-                target.appendChild(newNode);
-            }
-        }());
+        const target = document.getElementById("grids");
+        const node = document.getElementsByClassName("grid-container")[0];
+        for (let x = 1; x < NUMBEROFINPUTS; x++){
+            const newNode = node.cloneNode(true);
+            newNode.getElementsByClassName("index")[0].textContent = `${(x+1)}. `;
+            target.appendChild(newNode);
+        }
         
         const validate = (input) => {
             if(input.name === "name"){
@@ -81,73 +79,57 @@
         }
 
         const processForm = () => {
-                const records = document.getElementsByClassName("grid-container");
-                let counter = 0;
+            const records = document.getElementsByClassName("grid-container");
+            let counter = 0;
+            
+            //Get current records
+            let recordsList = [];
+            if (localStorage.getItem("records")){
+                recordsList = JSON.parse(localStorage.getItem("records"));
+            }
+            
+            const submission = (ArrayOfInputs) => {
+                for (let input of ArrayOfInputs) {
+                    input.disabled = true;
+                    input.classList.add("submitted");
+                    input.classList.remove("success");
+                    input.parentElement.setAttribute("data-tip", "Record Submitted!");
+                }
+            }
+            
+            for (let row of records) {
+                //Look only for valid records
+                let sucInputs = row.getElementsByClassName("success");
                 
-                //Get current records
-                let arrayOfNames = [];
-                if (localStorage.getItem("names")){
-                    arrayOfNames = JSON.parse(localStorage.getItem("names"));
-                }
-
-                let arrayOfPhones = [];
-                if (localStorage.getItem("phones")){
-                    arrayOfPhones = JSON.parse(localStorage.getItem("phones"));
-                }
-
-                const submission = (ArrayOfInputs) => {
-                    for (let input of ArrayOfInputs) {
-                        input.disabled = true;
-                        input.classList.add("submitted");
-                        input.classList.remove("success");
-                        input.parentElement.setAttribute("data-tip", "Record Submitted!");
-                    }
+                if (sucInputs.length !== 2){
+                    continue;
                 }
                 
-                for (let row of records) {
-                    //Look only for valid records
-                    let sucInputs = row.getElementsByClassName("success");
-                    
-                    if (sucInputs.length !== 2){
-                        continue;
-                    }
-                    
-                    let nameInput = row.getElementsByClassName("input-container")[0].children[0];
-                    let phoneInput = row.getElementsByClassName("input-container")[1].children[0];
+                let nameInput = row.getElementsByClassName("input-container")[0].children[0];
+                let phoneInput = row.getElementsByClassName("input-container")[1].children[0];
 
-                    //Check if the record is already added
-                    if(arrayOfNames.map((name) => name.toLowerCase()).includes(nameInput.value.toLowerCase())){
+                //Check if the record is already added
+                recordsList.map((item) => { 
+                    if (item.name.toLowerCase() === nameInput.value.toLowerCase())
                         errorValidation(nameInput, "This Name is already registered");
-                    }
-                    if(arrayOfPhones.includes(phoneInput.value)){
+
+                    if (item.phone === phoneInput.value)
                         errorValidation(phoneInput, "This Phone Number is already registered");
-                    }
+                });
 
-                    //if both records are new, add them
-                    if (sucInputs.length === 2){
-                        counter++;
-                        arrayOfNames.push(nameInput.value);
-                        arrayOfPhones.push(phoneInput.value);
-                        submission([nameInput,phoneInput]);
-                    }
+                //if both records are new, add them
+                if (sucInputs.length === 2){
+                    counter++;
+                    recordsList.push({
+                        "name": nameInput.value,
+                        "phone": phoneInput.value
+                    })
+                    submission([nameInput, phoneInput]);
                 }
+            }
 
-                //Expecting the unexpected
-                if(arrayOfNames.length !== arrayOfPhones.length){
-                    let containers = document.getElementsByClassName("input-container");
-                    for (let row of containers) {
-                        row.removeAttribute("data-tip");
-                        row.children[0].classList.remove("submitted");
-                        row.children[0].disabled = false;
-                    }
-                    alert("Something went wrong, no records were submitted :(");
-                    return false;
-                }
-
-                //Updating records on memory
-                localStorage.setItem('names', JSON.stringify(arrayOfNames));
-                localStorage.setItem('phones', JSON.stringify(arrayOfPhones));
-                alert(`${(counter)} new records added!`);
+            localStorage.setItem('records', JSON.stringify(recordsList));
+            alert(`${(counter)} new records added!`);
         }
     </script>
 </body>

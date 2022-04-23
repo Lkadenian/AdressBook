@@ -40,51 +40,33 @@
 
     <script>
 
-        (function() {
-            let arrayOfNames = [];
-            if (localStorage.getItem("names")){
-                arrayOfNames = JSON.parse(localStorage.getItem("names"));
-            }
+        let recordsList = [];
+        if (localStorage.getItem("records")){
+            recordsList = JSON.parse(localStorage.getItem("records"));
+        }
 
-            let arrayOfPhones = [];
-            if (localStorage.getItem("phones")){
-                arrayOfPhones = JSON.parse(localStorage.getItem("phones"));
-            }
+        const errorPage = document.getElementById("error_page");
+        if(recordsList.length === 0){
+            errorPage.children[0].textContent = "There are no records created";
+            errorPage.classList.add("im-visible");
+            document.getElementById("head_grid").remove();
+        }else{
+            const target = document.getElementById("main_container");
+            const node = document.getElementById("blank_container");
 
-            const errorPage = document.getElementById("error_page");
-            if(arrayOfNames.length !== arrayOfPhones.length){
-                errorPage.children[0].textContent = "There is something wrong with the list of records";
-                errorPage.classList.add("im-visible");
-                document.getElementById("head_grid").remove();
-                return false;
-            }
-            if(arrayOfNames.length === 0){
-                errorPage.children[0].textContent = "There are no records created";
-                errorPage.classList.add("im-visible");
-                document.getElementById("head_grid").remove();
-            }else{
-                const target = document.getElementById("main_container");
-                const node = document.getElementById("blank_container");
+            recordsList.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
 
-                let list = [];
-                for (var x = 0; x < arrayOfNames.length; x++){ 
-                    list.push({'name': arrayOfNames[x], 'phone': arrayOfPhones[x]});
-                }
-
-                list.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
-
-                list.map((item,x) => {
-                    const newNode = node.cloneNode(true);
-                    newNode.classList.remove("im-not-visible");
-                    newNode.removeAttribute('id');
-                    newNode.getElementsByClassName("index")[0].textContent = `${(x+1)}. `;
-                    newNode.getElementsByClassName("record-name")[0].textContent = item.name;
-                    newNode.getElementsByClassName("record-phone")[0].textContent = item.phone;
-                    target.appendChild(newNode);
-                });
-                node.remove();
-            }
-        }());
+            recordsList.map((item,x) => {
+                const newNode = node.cloneNode(true);
+                newNode.classList.remove("im-not-visible");
+                newNode.removeAttribute("id");
+                newNode.getElementsByClassName("index")[0].textContent = `${(x+1)}. `;
+                newNode.getElementsByClassName("record-name")[0].textContent = item.name;
+                newNode.getElementsByClassName("record-phone")[0].textContent = item.phone;
+                target.appendChild(newNode);
+            });
+            node.remove();
+        }
 
     </script>
 </body>

@@ -43,14 +43,9 @@
     </div>
 
     <script>
-        let arrayOfNames = [];
-        if (localStorage.getItem("names")){
-            arrayOfNames = JSON.parse(localStorage.getItem("names"));
-        }
-
-        let arrayOfPhones = [];
-        if (localStorage.getItem("phones")){
-            arrayOfPhones = JSON.parse(localStorage.getItem("phones"));
+        let recordsList = [];
+        if (localStorage.getItem("records")){
+            recordsList = JSON.parse(localStorage.getItem("records"));
         }
 
         const errorPage = document.getElementById("error_page");
@@ -58,24 +53,14 @@
         const node = document.getElementById("blank_container");
         const headGrid = document.getElementById("head_grid");
 
-        (function() {
-            if(arrayOfNames.length !== arrayOfPhones.length){
-                errorPage.children[0].textContent = "There is something wrong with the list of records";
-                errorPage.classList.add("im-visible");
-                document.getElementById("search_input").remove();
-                document.getElementById("button_input").remove();
-                return false;
-            }
-            if(arrayOfNames.length === 0){
-                errorPage.children[0].textContent = "There are no records created";
-                errorPage.classList.add("im-visible");
-                document.getElementById("search_input").remove();
-                document.getElementById("button_input").remove();
-            }
-        }());
+        if(localStorage.length === 0){
+            errorPage.children[0].textContent = "There are no records created";
+            errorPage.classList.add("im-visible");
+            document.getElementById("search_input").remove();
+            document.getElementById("button_input").remove();
+        }
 
         const search = async() => {
-
             const settingNoResults = () => {
                 headGrid.classList.add("im-not-visible");
                 errorPage.children[0].textContent = "There are no records that match that search query";
@@ -111,20 +96,18 @@
             let counter = 0;
 
             if (searchValue !== "" && regName.test(searchValue)){
-                arrayOfNames.map((name,x) => {
-                    let phone = arrayOfPhones[x];
-                    if (name.toLowerCase().indexOf(searchValue.toLowerCase()) !== -1){
-                        settingResults(name, phone);
+                recordsList.map((item) => {
+                    if (item.name.toLowerCase().indexOf(searchValue.toLowerCase()) !== -1){
+                        settingResults(item.name, item.phone);
                     }
                 });
                 if (counter === 0){
                     settingNoResults();
                 }
             }else if(searchValue !== "" && regPhone.test(searchValue)){
-                arrayOfNames.map((name,x) => {
-                    let phone = arrayOfPhones[x];
-                    if (phone === searchValue){
-                        settingResults(name, phone);
+                recordsList.map((item) => {
+                    if (item.phone === searchValue){
+                        settingResults(item.name, item.phone);
                     }
                 });
                 if (counter === 0){
