@@ -76,11 +76,6 @@
 
         const search = async() => {
 
-            const resetSearchPage = () => {
-                errorPage.classList.remove("im-visible");
-                document.getElementById("results_container").remove();
-            }
-
             const settingNoResults = () => {
                 headGrid.classList.add("im-not-visible");
                 errorPage.children[0].textContent = "There are no records that match that search query";
@@ -101,8 +96,10 @@
                 target.appendChild(resultsContainer);
             }
 
+            errorPage.classList.remove("im-visible");
+
             if (document.getElementById("results_container")){
-                resetSearchPage();
+                document.getElementById("results_container").remove();
             }
             
             const searchValue = document.getElementById("search_input").value;
