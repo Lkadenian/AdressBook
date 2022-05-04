@@ -45,7 +45,7 @@
             if(input.name === "name"){
                 const regName = /^[A-Za-z\s]*$/;
                 if (!regName.test(input.value)){
-                    errorValidation(input, "Only letters and numbers allowed");
+                    errorValidation(input, "Only letters are allowed");
                 }else{
                     const sibling = input.parentElement.nextElementSibling.children[0];
                     successValidation(input, sibling);

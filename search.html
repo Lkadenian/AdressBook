@@ -14,7 +14,7 @@
 
     <div class="container" id="main_container">
         <h1>Search</h1>
-        <input id="search_input" placeholder="Search for name or phone number" name="search">
+        <div><input id="search_input" placeholder="Search for name or phone number" name="search"></div>
         <button id="search_button" onclick="search()">SEARCH</button>
         <div id="error_page">
             <p></p>
@@ -52,11 +52,12 @@
         const target = document.getElementById("main_container");
         const node = document.getElementById("blank_container");
         const headGrid = document.getElementById("head_grid");
+        const searchInput = document.getElementById("search_input");
 
         if(localStorage.length === 0){
             errorPage.children[0].textContent = "There are no records created";
             errorPage.classList.add("im-visible");
-            document.getElementById("search_input").remove();
+            searchInput.remove();
             document.getElementById("button_input").remove();
         }
 
@@ -82,12 +83,14 @@
             }
 
             errorPage.classList.remove("im-visible");
+            searchInput.classList.remove("error");
+            searchInput.parentElement.removeAttribute("data-tip");
 
             if (document.getElementById("results_container")){
                 document.getElementById("results_container").remove();
             }
             
-            const searchValue = document.getElementById("search_input").value;
+            const searchValue = searchInput.value;
             const regName = /^[A-Za-z\s]*$/;
             const regPhone = /^(\+(?!01)|0)(?:[^()]*|[^()]*\([^()]*\)[^()]*)[0-9]{6,}$/;
             const resultsContainer = document.createElement("div");
@@ -114,6 +117,8 @@
                     settingNoResults();
                 }
             }else{
+                document.getElementById("search_input").classList.add("error");
+                document.getElementById("search_input").parentElement.setAttribute("data-tip", "Should input a correct name or phone number");
                 settingNoResults();
             }
         }
